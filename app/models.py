@@ -5,7 +5,7 @@ import re
 
 def slugify(s: str) -> str:
     pattern = r'[^\w+]'
-    return re.sub(pattern, '-', s)
+    return re.sub(pattern, '-', s).lower()
 
 
 class Post(db.Model):
