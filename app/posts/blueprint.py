@@ -11,11 +11,11 @@ def create_post():
     if request.method == 'POST':
         title = request.form.get('title', '')
         body = request.form.get('body', '')
-        tags = request.form.get('tags', '')
-        if tags:
-            for tag in tags.split(','):
-                new_tag = Tag(name=tag)
-                db_save(data=new_tag)
+        # tags = request.form.get('tags', '')
+        # if tags:
+        #    for tag in tags.split(','):
+        #        new_tag = Tag(name=tag)
+        #        db_save(data=new_tag)
         if title and body:
             post = Post(title=title, body=body)
             db_save(data=post)
@@ -24,6 +24,19 @@ def create_post():
 
     form = PostFrom()
     return render_template('posts/create_post.html', form=form)
+
+
+@posts.route('/<slug>/edit/', methods=['POST', 'GET'])
+def edit_post(slug):
+    post = Post.query.filter(Post.slug == slug).first()
+    if request.method == 'POST':
+        form = PostFrom(formdata=request.form, obj=post)
+        form.populate_obj(post)
+        db_commit()
+        return redirect(url_for('posts.post_detail', slug=post.slug))
+
+    form = PostFrom(obj=post)
+    return render_template('posts/edit_post.html', post=post, form=form)
 
 
 @posts.route('/')
@@ -67,3 +80,7 @@ def db_save(data):
         except:
             pass
             # TODO: обработать исключение
+
+
+def db_commit():
+    db.session.commit()
